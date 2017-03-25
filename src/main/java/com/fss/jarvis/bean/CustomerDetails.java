@@ -7,24 +7,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author Abdulla
+ * @author mohammeda
  *
  */
 @XmlRootElement
-public class AIParamRequest {
+public class CustomerDetails {
 
-	@XmlElement(name = "number")
+	@XmlElement(name = "mobNo")
 	public String mobileNo;
 	
-	@XmlElement(name = "email")
+	@XmlElement(name = "emailId")
 	public String emailId;
 	
-	@XmlElement(name = "name")
-	public String regname;
-
-	@XmlElement(name = "tType")
-	public String tranType;
+	@XmlElement(name = "regName")
+	public String remitterName;
 	
+	@XmlElement(name = "isReg")
+	public String regFlag;
+
 	public String getMobileNo() {
 		return mobileNo;
 	}
@@ -41,20 +41,22 @@ public class AIParamRequest {
 		this.emailId = emailId;
 	}
 
-	public String getRegname() {
-		return regname;
+	public String getRemitterName() {
+		return remitterName;
 	}
 
-	public void setRegname(final String regname) {
-		this.regname = regname;
+	public void setRemitterName(final String remitterName) {
+		this.remitterName = remitterName;
 	}
 
-	public String getTranType() {
-		return tranType;
+	public String getRegFlag() {
+		return regFlag;
 	}
 
-	public void setTranType(final String tranType) {
-		this.tranType = tranType;
+	public void setRegFlag(final String regFlag) {
+		this.regFlag = regFlag;
 	}
+	
+	
 	
 }

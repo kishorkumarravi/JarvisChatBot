@@ -11,9 +11,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fss.jarvis.bean.AIRequest;
-import com.fss.jarvis.bean.Registration;
+import com.fss.jarvis.bean.AIResponse;
 import com.fss.jarvis.resource.RegistrationResource;
+import com.fss.jarvis.service.RegistrationService;
 
 /**
  * @author Abdulla
@@ -22,14 +27,19 @@ import com.fss.jarvis.resource.RegistrationResource;
 @Path("/registration")
 public class RegistrationResourceImpl implements RegistrationResource {
 
+	
+	public static Logger LOGGER = LoggerFactory.getLogger(RegistrationResourceImpl.class);
+	
+	@Autowired
+	private RegistrationService registrationService;
+	
 	@Override
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doRegistration(AIRequest request) {
-		Registration registraton = new Registration();
-		registraton.setMobileNo(request.getResultRequest().getParameters().getMobileNo());
-		return Response.status(Status.OK).entity(registraton).build();
+		AIResponse response = registrationService.insertUserDetails(request);
+		return Response.status(Status.OK).entity(response).build();
 	}
 
 }

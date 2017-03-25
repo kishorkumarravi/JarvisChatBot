@@ -1,22 +1,47 @@
 /**
  * 
  */
-package com.fss.jarvis.bean;
+package com.fss.jarvis.entity;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @author Abdulla
  *
  */
-@XmlRootElement
+@Document(collection = "registration")
 public class Registration {
-
+	
+	@Id
+	public String id;
+	
 	public String mobileNo;
 	
 	public String regName;
 	
 	public String emailId;
+
+	
+	
+	public Registration() {
+		
+	}
+
+	public Registration(String id, String mobileNo, String regName, String emailId) {
+		this.id = id;
+		this.mobileNo = mobileNo;
+		this.regName = regName;
+		this.emailId = emailId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getMobileNo() {
 		return mobileNo;
@@ -41,7 +66,5 @@ public class Registration {
 	public void setEmailId(String emailId) {
 		this.emailId = emailId;
 	}
-	
-
 	
 }

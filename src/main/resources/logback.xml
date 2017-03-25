@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!--commented by Arjun. G for load testing.. Date:: 30-08-2016  -->
+ <!-- 	<property file="D:/MPAYCONFIG/properties/ProjectResources.properties" />  -->
+
+    <property name="DEV_HOME" value="D:/Jarvis/logs" /> 
+
+	 <!-- 	Jboss logs -->
+ 	 <!-- <property name="DEV_HOME" value="/data/mpay6.0/logs" /> --> 
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} %-5level	%logger{0}.%M \(%L\) - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="FILE-AUDIT"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${DEV_HOME}/mpaycoreoutput.log</file>
+
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss}  %-5level	%logger{0}.%M \(%L\) - %msg%n
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+<!-- 			rollover daily
+ -->			<fileNamePattern>${DEV_HOME}/archived/mpaycoreoutput.%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+
+	</appender>
+		
+
+	<appender name="FILE-ERROR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${DEV_HOME}/mpaycoreerror.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} %-5level	%logger{0}.%M \(%L\) - %msg%n
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${DEV_HOME}/archived/mpaycoreerror.%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+
+	</appender>
+	
+	<!-- Send logs to both console and file audit -->
+	<logger name="com.fss.jarvis" level="${log.level}"
+		additivity="true">
+		<appender-ref ref="FILE-AUDIT" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	
+	<root level="error">
+		<appender-ref ref="FILE-ERROR" />
+	</root>
+	<logger name="org.springframework" level="error" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+<!-- 	<logger name="org.springframework" level="OFF" />
+ -->
+</configuration>
