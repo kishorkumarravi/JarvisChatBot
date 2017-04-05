@@ -6,14 +6,18 @@ package com.fss.jarvis.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import com.fss.jarvis.dao.ProcessQuery;
 import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.Registration;
+import com.fss.jarvis.entity.SequenceId;
 
 /**
  * @author Abdulla
@@ -27,6 +31,30 @@ public class ProcessQueryImpl<T> implements ProcessQuery<T>{
 	
 	@Autowired
 	private MongoTemplate mongoTemplate;
+	
+	@Autowired
+	private MongoOperations mongoOperation;
+
+	@Override
+	public long getNextSequenceId(String key)  {
+
+	  //get sequence id
+	  Query query = new Query(Criteria.where("_id").is(key));
+
+	  //increase sequence id by 1
+	  Update update = new Update();
+	  update.inc("seq", 1);
+
+	  //return new increased id
+	  FindAndModifyOptions options = new FindAndModifyOptions();
+	  options.returnNew(true);
+
+	  //this is the magic happened.
+	  SequenceId seqId = mongoOperation.findAndModify(query, update, options, SequenceId.class);
+	  
+	  return seqId.getSeq();
+
+	}
 	
 	@Override
 	public void saveObject(T object) {

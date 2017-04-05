@@ -56,7 +56,20 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 				AccountInfo accInfo = new AccountInfo();
 				accInfo.setMobileNo(paramRequest.getMobileNo());
 				accInfo.setBalance(balance);
+				accInfo.setAccountType("savings");
 				processQuery.saveObject((T) accInfo);
+				AccountInfo accLoanInfo = accInfo;
+				accLoanInfo.setAccountType("loan");
+				accLoanInfo.setBalance(RandomStringUtils.randomNumeric(5));
+				processQuery.saveObject((T) accLoanInfo);
+				AccountInfo accDepInfo = accInfo;
+				accDepInfo.setAccountType("deposit");
+				accDepInfo.setBalance(RandomStringUtils.randomNumeric(5));
+				processQuery.saveObject((T) accDepInfo);
+				AccountInfo accCurrInfo = accInfo;
+				accCurrInfo.setAccountType("current");
+				accCurrInfo.setBalance(RandomStringUtils.randomNumeric(5));
+				processQuery.saveObject((T) accCurrInfo);
 				speech = "Registered Successfully";
 			} else {
 				custDetails.setEmailId(regCheck.getEmailId());
@@ -76,6 +89,10 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 				custDetails.setRegFlag(isRegFlag);
 			}
 		} else if (paramRequest.getTranType().equalsIgnoreCase("jr003")) {
+			if (paramRequest.getAccountType() == null && !"".equals(paramRequest.getAccountType())) {
+				
+				speech = "Please share your account type...";
+			}
 			AccountInfo accInfo = processQuery.getBalance(paramRequest.getMobileNo());
 			speech = "Your Balance is "+ accInfo.getBalance();
 		}

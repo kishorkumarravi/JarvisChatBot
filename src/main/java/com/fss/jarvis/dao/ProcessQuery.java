@@ -19,4 +19,6 @@ public interface ProcessQuery<T> {
 	
 	public AccountInfo getBalance(String mobileNo);
 	
+	long getNextSequenceId(String key);
+	
 }

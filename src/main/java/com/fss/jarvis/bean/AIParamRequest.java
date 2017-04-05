@@ -3,6 +3,8 @@
  */
 package com.fss.jarvis.bean;
 
+import java.util.Locale;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -24,6 +26,9 @@ public class AIParamRequest {
 
 	@XmlElement(name = "tType")
 	public String tranType;
+	
+	@XmlElement(name = "accountType")
+	public String accountType;
 	
 	public String getMobileNo() {
 		return mobileNo;
@@ -56,5 +61,17 @@ public class AIParamRequest {
 	public void setTranType(final String tranType) {
 		this.tranType = tranType;
 	}
+
+	public String getAccountType() {
+		if (accountType != null) {
+			accountType = accountType.toLowerCase(Locale.ENGLISH);
+		}
+		return accountType;
+	}
+
+	public void setAccountType(final String accountType) {
+		this.accountType = accountType;
+	}
+	
 	
 }
