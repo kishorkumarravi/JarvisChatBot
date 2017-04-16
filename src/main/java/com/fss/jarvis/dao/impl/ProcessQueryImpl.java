@@ -3,6 +3,9 @@
  */
 package com.fss.jarvis.dao.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import com.fss.jarvis.dao.ProcessQuery;
 import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.Registration;
 import com.fss.jarvis.entity.SequenceId;
+import com.fss.jarvis.entity.TransactionConfiguration;
 
 /**
  * @author Abdulla
@@ -72,11 +76,38 @@ public class ProcessQueryImpl<T> implements ProcessQuery<T>{
 	}
 
 	@Override
-	public AccountInfo getBalance(String mobileNo) {
-		Query query = new Query(Criteria.where("mobileNo").is(mobileNo));
+	public List<AccountInfo> getBalance(String mobileNo, String accounttype) {
+		Criteria criteria = new Criteria();
+		if (accounttype.equalsIgnoreCase("ALL")) {
+			criteria = Criteria.where("mobileNo").is(mobileNo);
+		} else {
+        criteria.andOperator(Criteria.where("mobileNo").is(mobileNo),Criteria.where("accountType").is(accounttype));
+		}
+		Query query = new Query(criteria);
 		LOGGER.info("get User Details Query is {}", query);
-		AccountInfo accInfo = mongoTemplate.findOne(new Query(Criteria.where("mobileNo").is(mobileNo)), AccountInfo.class);
+		List<AccountInfo> accInfo = mongoTemplate.find((query), AccountInfo.class);
 		return accInfo;
 	}
 	
+	@Override
+	public TransactionConfiguration getMpinFlag(String tType) {
+		Query query = new Query(Criteria.where("messageId").is(tType));
+		LOGGER.info("getMpinFlag is {}", query);
+		TransactionConfiguration tranConfig = mongoTemplate.findOne(query, TransactionConfiguration.class);
+		return tranConfig;
+	}
+
+	@Override
+	public List<String> getAccountType(String mobileNo) {
+		Criteria criteria = new Criteria();
+        criteria.andOperator(Criteria.where("mobileNo").is(mobileNo));
+		Query query = new Query(criteria);
+		LOGGER.info("get User Details Query is {}", query);
+		List<AccountInfo> accInfo = mongoTemplate.find((query), AccountInfo.class);
+		List<String> accList = new ArrayList<String>();
+		for (AccountInfo accIfo : accInfo) {
+			accList.add(accIfo.getAccountType());
+		}
+		return accList;
+	}
 }

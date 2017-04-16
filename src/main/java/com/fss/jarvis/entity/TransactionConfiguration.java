@@ -19,8 +19,7 @@ public class TransactionConfiguration {
 	
 	public String messageDesc;
 	
-	@Id
-	public long id;
+	
 
 	public String getMessageId() {
 		return messageId;
@@ -46,13 +45,6 @@ public class TransactionConfiguration {
 		this.messageDesc = messageDesc;
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 	
 
 	

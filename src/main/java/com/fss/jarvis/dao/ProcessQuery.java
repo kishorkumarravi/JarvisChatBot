@@ -3,8 +3,11 @@
  */
 package com.fss.jarvis.dao;
 
+import java.util.List;
+
 import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.Registration;
+import com.fss.jarvis.entity.TransactionConfiguration;
 
 /**
  * @author Abdulla
@@ -17,8 +20,12 @@ public interface ProcessQuery<T> {
 	
 	public Registration getUserDetails(String mobileNo);
 	
-	public AccountInfo getBalance(String mobileNo);
+	public List<AccountInfo> getBalance(String mobileNo, String accounttype);
 	
 	long getNextSequenceId(String key);
+	
+	public TransactionConfiguration getMpinFlag(String tType);
+	
+	public List<String> getAccountType(String mobileNo);
 	
 }

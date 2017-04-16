@@ -17,6 +17,8 @@ public class AccountInfo {
 	public String balance;
 	
 	public String accountType;
+	
+	public String accountNo;
 
 	public String getMobileNo() {
 		return mobileNo;
@@ -41,6 +43,13 @@ public class AccountInfo {
 	public void setAccountType(final String accountType) {
 		this.accountType = accountType;
 	}
-	
+
+	public String getAccountNo() {
+		return accountNo;
+	}
+
+	public void setAccountNo(String accountNo) {
+		this.accountNo = accountNo;
+	}
 	
 }

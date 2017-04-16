@@ -3,6 +3,8 @@
  */
 package com.fss.jarvis.bean;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -24,6 +26,18 @@ public class CustomerDetails {
 	
 	@XmlElement(name = "isReg")
 	public String regFlag;
+	
+	@XmlElement(name = "isMpin")
+	public String mPinFlag;
+	
+	@XmlElement(name = "isArray")
+	public List<String> strArray;
+	
+	@XmlElement(name = "isArrayKey")
+	public String strArrayKey;
+	
+	@XmlElement(name = "isSlideArray")
+	public List<AISlideArrayResponse> strSlideArray;
 
 	public String getMobileNo() {
 		return mobileNo;
@@ -56,7 +70,39 @@ public class CustomerDetails {
 	public void setRegFlag(final String regFlag) {
 		this.regFlag = regFlag;
 	}
-	
+
+	public String getmPinFlag() {
+		return mPinFlag;
+	}
+
+	public void setmPinFlag(String mPinFlag) {
+		this.mPinFlag = mPinFlag;
+	}
+
+	public List<String> getStrArray() {
+		return strArray;
+	}
+
+	public void setStrArray(List<String> strArray) {
+		this.strArray = strArray;
+	}
+
+	public String getStrArrayKey() {
+		return strArrayKey;
+	}
+
+	public void setStrArrayKey(String strArrayKey) {
+		this.strArrayKey = strArrayKey;
+	}
+
+	public List<AISlideArrayResponse> getStrSlideArray() {
+		return strSlideArray;
+	}
+
+	public void setStrSlideArray(List<AISlideArrayResponse> strSlideArray) {
+		this.strSlideArray = strSlideArray;
+	}
+
 	
 	
 }

@@ -30,6 +30,9 @@ public class AIParamRequest {
 	@XmlElement(name = "accountType")
 	public String accountType;
 	
+	@XmlElement(name = "mpin")
+	public String mpin;
+	
 	public String getMobileNo() {
 		return mobileNo;
 	}
@@ -72,6 +75,12 @@ public class AIParamRequest {
 	public void setAccountType(final String accountType) {
 		this.accountType = accountType;
 	}
-	
-	
+
+	public String getMpin() {
+		return mpin;
+	}
+
+	public void setMpin(String mpin) {
+		this.mpin = mpin;
+	}
 }
