@@ -3,7 +3,6 @@
  */
 package com.fss.jarvis.entity;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -18,8 +17,6 @@ public class TransactionConfiguration {
 	public String mpinRequiredFlg;
 	
 	public String messageDesc;
-	
-	
 
 	public String getMessageId() {
 		return messageId;

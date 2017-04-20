@@ -22,6 +22,7 @@ import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.Registration;
 import com.fss.jarvis.entity.SequenceId;
 import com.fss.jarvis.entity.TransactionConfiguration;
+import com.fss.jarvis.entity.TransactionDetails;
 
 /**
  * @author Abdulla
@@ -109,5 +110,11 @@ public class ProcessQueryImpl<T> implements ProcessQuery<T>{
 			accList.add(accIfo.getAccountType());
 		}
 		return accList;
+	}
+
+	@Override
+	public List<TransactionDetails> getTxnDetails() {
+		List<TransactionDetails> txnDetails = mongoTemplate.findAll(TransactionDetails.class);
+		return txnDetails;
 	}
 }

@@ -103,15 +103,18 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 			}
 		} else if (paramRequest.getTranType().equalsIgnoreCase("jr003")) {
 			TransactionConfiguration tranConfig = processQuery.getMpinFlag(paramRequest.getTranType());
-			if (paramRequest.getAccountType() == null && !"".equals(paramRequest.getAccountType())) {
+			custDetails.setResolvedQuery(request.getResultRequest().getReqQuery());
+			if (jarvisUtils.validateNullData(paramRequest.getAccountType()).equals("-")) {
 				speech = "Please enter  account type...";
 				custDetails.setStrArray(processQuery.getAccountType(paramRequest.getMobileNo()));
 				custDetails.setmPinFlag(tranConfig.getMpinRequiredFlg());
 				custDetails.setStrArrayKey("accountType");
+				custDetails.setParamRequest(paramRequest);
 			} else {
 				if ((jarvisUtils.validateNullData(paramRequest.getMpin()).equals("-") && "Y".equals(tranConfig.getMpinRequiredFlg())) ) {
 					speech = "Please enter valid mPin";
 					custDetails.setmPinFlag(tranConfig.getMpinRequiredFlg());
+					custDetails.setParamRequest(paramRequest);
 				} else {
 					if (paramRequest.getAccountType().equalsIgnoreCase("savings")
 							|| paramRequest.getAccountType().equalsIgnoreCase("loan")

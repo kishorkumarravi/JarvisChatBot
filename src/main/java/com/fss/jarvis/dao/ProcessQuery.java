@@ -8,6 +8,7 @@ import java.util.List;
 import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.Registration;
 import com.fss.jarvis.entity.TransactionConfiguration;
+import com.fss.jarvis.entity.TransactionDetails;
 
 /**
  * @author Abdulla
@@ -28,4 +29,6 @@ public interface ProcessQuery<T> {
 	
 	public List<String> getAccountType(String mobileNo);
 	
+	public List<TransactionDetails> getTxnDetails();
+ 	
 }

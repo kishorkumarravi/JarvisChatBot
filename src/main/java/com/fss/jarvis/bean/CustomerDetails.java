@@ -38,6 +38,14 @@ public class CustomerDetails {
 	
 	@XmlElement(name = "isSlideArray")
 	public List<AISlideArrayResponse> strSlideArray;
+	
+	@XmlElement(name = "query")
+	public String resolvedQuery;
+	
+	@XmlElement(name = "parameters")
+	public AIParamRequest paramRequest;
+	
+	public String speech;
 
 	public String getMobileNo() {
 		return mobileNo;
@@ -103,6 +111,29 @@ public class CustomerDetails {
 		this.strSlideArray = strSlideArray;
 	}
 
+	public String getResolvedQuery() {
+		return resolvedQuery;
+	}
+
+	public void setResolvedQuery(String resolvedQuery) {
+		this.resolvedQuery = resolvedQuery;
+	}
+
+	public AIParamRequest getParamRequest() {
+		return paramRequest;
+	}
+
+	public void setParamRequest(AIParamRequest paramRequest) {
+		this.paramRequest = paramRequest;
+	}
+
+	public String getSpeech() {
+		return speech;
+	}
+
+	public void setSpeech(String speech) {
+		this.speech = speech;
+	}
 	
 	
 }
