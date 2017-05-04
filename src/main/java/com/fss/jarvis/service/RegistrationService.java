@@ -12,6 +12,7 @@ import com.fss.jarvis.bean.AIResponse;
  */
 public interface RegistrationService {
 
-	public AIResponse insertUserDetails(AIRequest request);
+	
+	public AIResponse process(AIRequest request);
 	
 }

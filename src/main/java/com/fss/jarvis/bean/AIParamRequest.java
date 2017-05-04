@@ -33,6 +33,15 @@ public class AIParamRequest {
 	@XmlElement(name = "mpin")
 	public String mpin;
 	
+	@XmlElement(name = "city")
+	public String atmBrchCity;
+	
+	@XmlElement(name = "toLocate")
+	public String atmBrchIdentifier;
+	
+	@XmlElement(name = "isNear")
+	public String nearIdentifier;
+	
 	public String getMobileNo() {
 		return mobileNo;
 	}
@@ -83,4 +92,29 @@ public class AIParamRequest {
 	public void setMpin(String mpin) {
 		this.mpin = mpin;
 	}
+
+	public String getAtmBrchCity() {
+		return atmBrchCity;
+	}
+
+	public void setAtmBrchCity(String atmBrchCity) {
+		this.atmBrchCity = atmBrchCity;
+	}
+
+	public String getAtmBrchIdentifier() {
+		return atmBrchIdentifier;
+	}
+
+	public void setAtmBrchIdentifier(String atmBrchIdentifier) {
+		this.atmBrchIdentifier = atmBrchIdentifier;
+	}
+
+	public String getNearIdentifier() {
+		return nearIdentifier;
+	}
+
+	public void setNearIdentifier(String nearIdentifier) {
+		this.nearIdentifier = nearIdentifier;
+	}
+	
 }

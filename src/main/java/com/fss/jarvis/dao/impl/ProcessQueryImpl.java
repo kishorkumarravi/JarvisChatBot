@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fss.jarvis.dao.ProcessQuery;
 import com.fss.jarvis.entity.AccountInfo;
+import com.fss.jarvis.entity.LocatorDetails;
 import com.fss.jarvis.entity.Registration;
 import com.fss.jarvis.entity.SequenceId;
 import com.fss.jarvis.entity.TransactionConfiguration;
@@ -116,5 +117,28 @@ public class ProcessQueryImpl<T> implements ProcessQuery<T>{
 	public List<TransactionDetails> getTxnDetails() {
 		List<TransactionDetails> txnDetails = mongoTemplate.findAll(TransactionDetails.class);
 		return txnDetails;
+	}
+
+	@Override
+	public List<LocatorDetails> getAtmAddress(String city) {
+		Criteria criteria = new Criteria();
+		List<LocatorDetails> atmList = null;
+		if (city != null && !"".equals(city)) {
+			criteria.andOperator(Criteria.where("city").is(city));
+			Query query = new Query(criteria);
+			LOGGER.info("getAtmAddress Details Query is {}", query);
+			atmList = mongoTemplate.find((query), LocatorDetails.class);
+		} else {
+			atmList = mongoTemplate.findAll(LocatorDetails.class);
+		}
+		if (atmList.size() == 0) {
+			atmList = mongoTemplate.findAll(LocatorDetails.class);
+		}
+		/*
+		 * List<String> atmAddrList = new ArrayList<String>(); for
+		 * (LocatorDetails atmAddr : atmList) {
+		 * atmAddrList.add(atmAddr.getAddress()); }
+		 */
+		return atmList;
 	}
 }

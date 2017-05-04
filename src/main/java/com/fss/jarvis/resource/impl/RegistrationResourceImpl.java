@@ -38,7 +38,7 @@ public class RegistrationResourceImpl implements RegistrationResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doRegistration(AIRequest request) {
-		AIResponse response = registrationService.insertUserDetails(request);
+		AIResponse response = registrationService.process(request);
 		return Response.status(Status.OK).entity(response).build();
 	}
 

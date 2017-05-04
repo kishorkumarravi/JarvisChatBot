@@ -3,8 +3,11 @@
  */
 package com.fss.jarvis.service.impl;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -20,9 +23,13 @@ import com.fss.jarvis.bean.AISlideArrayResponse;
 import com.fss.jarvis.bean.CustomerDetails;
 import com.fss.jarvis.dao.ProcessQuery;
 import com.fss.jarvis.entity.AccountInfo;
+import com.fss.jarvis.entity.ChatTranDetails;
+import com.fss.jarvis.entity.LocatorDetails;
 import com.fss.jarvis.entity.Registration;
 import com.fss.jarvis.entity.TransactionConfiguration;
+import com.fss.jarvis.entity.TransactionDetails;
 import com.fss.jarvis.service.RegistrationService;
+import com.fss.jarvis.utils.JarvisConstants;
 import com.fss.jarvis.utils.JarvisUtils;
 
 /**
@@ -42,11 +49,22 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 	public static Logger LOGGER = LoggerFactory.getLogger(RegistrationServiceImpl.class);
 
 	
+	@Override
+	public AIResponse process(AIRequest request) {
+		ChatTranDetails chatTranDtls = new ChatTranDetails();
+		chatTranDtls.setMobileNo(jarvisUtils.validateNullData(request.getResultRequest().getParameters().getMobileNo()));
+		chatTranDtls.settType(jarvisUtils.validateNullData(request.getResultRequest().getParameters().getTranType()));
+		chatTranDtls.setQuery(jarvisUtils.validateNullData(request.getResultRequest().getReqQuery()));
+		chatTranDtls.setAiAction(jarvisUtils.validateNullData(request.getResultRequest().getReqAction()));
+		processQuery.saveObject((T) chatTranDtls);
+		AIResponse response = getTransactionIdentifier(request);
+		return response;
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.fss.jarvis.service.RegistrationService#insertUserDetails(com.fss.jarvis.bean.AIRequest)
 	 */
-	@Override
-	public AIResponse insertUserDetails(AIRequest request) {
+	private AIResponse insertUserDetails(AIRequest request) {
 		String speech = "";
 		CustomerDetails custDetails = new CustomerDetails();
 		AIParamRequest paramRequest = request.getResultRequest().getParameters();
@@ -101,53 +119,117 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 				speech = "Hi "+ regCheck.getRegName() + ", Its nice to see you back...what can I do for you";
 				custDetails.setRegFlag(isRegFlag);
 			}
-		} else if (paramRequest.getTranType().equalsIgnoreCase("jr003")) {
-			TransactionConfiguration tranConfig = processQuery.getMpinFlag(paramRequest.getTranType());
-			custDetails.setResolvedQuery(request.getResultRequest().getReqQuery());
-			if (jarvisUtils.validateNullData(paramRequest.getAccountType()).equals("-")) {
-				speech = "Please enter  account type...";
-				custDetails.setStrArray(processQuery.getAccountType(paramRequest.getMobileNo()));
+		} 
+		AIResponse response = setResponse(speech, custDetails);
+		return response;
+	}
+	
+	
+	public AIResponse getTransactionIdentifier(AIRequest request) {
+		AIResponse response = null;
+		String tType = request.getResultRequest().getParameters().getTranType();
+		switch (tType) {
+		case JarvisConstants.REGISTRATIONTYPE :
+			response = insertUserDetails(request);
+			break;
+		case JarvisConstants.BALANCEENQUIRYTYPE :
+			response = getBalanceEnquiry(request);
+			break;
+		case JarvisConstants.MINISTATEMENTTYPE :
+			response = getBalanceEnquiry(request);
+			break;
+		case JarvisConstants.ATMBRANCHTTYPE :
+			response = getAtmDetails(request);
+			break;	
+		default :
+			LOGGER.info("Invalid Transaction type");
+			response = new AIResponse();
+			response.setSpeech("Invalid Request");
+		}
+		return response;
+	}
+	
+	private AIResponse getBalanceEnquiry(AIRequest request) {
+		String speech = "";
+		AIResponse response = new AIResponse();
+		CustomerDetails custDetails = new CustomerDetails();
+		AIParamRequest paramRequest = request.getResultRequest().getParameters();
+		TransactionConfiguration tranConfig = processQuery.getMpinFlag(paramRequest.getTranType());
+		custDetails.setResolvedQuery(request.getResultRequest().getReqQuery());
+		if (jarvisUtils.validateNullData(paramRequest.getAccountType()).equals("-")) {
+			speech = "Please enter  account type...";
+			custDetails.setSpeech("Please enter  account type...");
+			custDetails.setStrArray(processQuery.getAccountType(paramRequest.getMobileNo()));
+			custDetails.setmPinFlag(tranConfig.getMpinRequiredFlg());
+			custDetails.setStrArrayKey("accountType");
+			custDetails.setParamRequest(paramRequest);
+		} else {
+			if ((jarvisUtils.validateNullData(paramRequest.getMpin()).equals("-") && "Y".equals(tranConfig.getMpinRequiredFlg()))) {
+				speech = "Please enter  valid mPin";
+				custDetails.setSpeech("Please enter valid mPin");
 				custDetails.setmPinFlag(tranConfig.getMpinRequiredFlg());
-				custDetails.setStrArrayKey("accountType");
 				custDetails.setParamRequest(paramRequest);
 			} else {
-				if ((jarvisUtils.validateNullData(paramRequest.getMpin()).equals("-") && "Y".equals(tranConfig.getMpinRequiredFlg())) ) {
-					speech = "Please enter valid mPin";
-					custDetails.setmPinFlag(tranConfig.getMpinRequiredFlg());
-					custDetails.setParamRequest(paramRequest);
-				} else {
-					if (paramRequest.getAccountType().equalsIgnoreCase("savings")
-							|| paramRequest.getAccountType().equalsIgnoreCase("loan")
-							|| paramRequest.getAccountType().equalsIgnoreCase("deposit")
-							|| paramRequest.getAccountType().equalsIgnoreCase("current")
-							|| paramRequest.getAccountType().equalsIgnoreCase("p")
-							|| paramRequest.getAccountType().equalsIgnoreCase("primary")
-							|| paramRequest.getAccountType().equalsIgnoreCase("ALL")) {
-						if (paramRequest.getAccountType().equalsIgnoreCase("p") || paramRequest.getAccountType().equalsIgnoreCase("primary")) {
-							paramRequest.setAccountType("savings");
-						}
+				if (JarvisConstants.accountTypes.contains(paramRequest.getAccountType())) {
+					if (paramRequest.getAccountType().equalsIgnoreCase("p")
+							|| paramRequest.getAccountType().equalsIgnoreCase("primary")) {
+						paramRequest.setAccountType("savings");
+					}
+					NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
+					if (paramRequest.getTranType().equalsIgnoreCase("jr003")) {
 						List<AccountInfo> accInfoList = processQuery.getBalance(paramRequest.getMobileNo(), paramRequest.getAccountType());
 						if (accInfoList.size() == 1) {
-							AccountInfo accInfo = accInfoList.get(0); 
-							speech = "Your Balance is " + accInfo.getBalance();
-							AISlideArrayResponse response = setArrayResponse("Balance", accInfo.getAccountType(), accInfo.getAccountNo(), accInfo.getBalance());
+							AccountInfo accInfo = accInfoList.get(0);
+							String bal = formatter.format(Double.valueOf(accInfo.getBalance()));
+							bal = bal.replace("Rs.", "\u20B9 ");
+							speech = "Your Balance is " + bal;
+							AISlideArrayResponse slideResponse = setArrayResponse("Balance", accInfo.getAccountType(), accInfo.getAccountNo(), bal);
 							List<AISlideArrayResponse> slideArrayList = new ArrayList<AISlideArrayResponse>();
-							slideArrayList.add(response);
+							slideArrayList.add(slideResponse);
 							custDetails.setStrSlideArray(slideArrayList);
 						} else {
 							final List<AISlideArrayResponse> slideArrayList = new ArrayList<AISlideArrayResponse>();
 							accInfoList.forEach(acc -> {
-								final AISlideArrayResponse response = setArrayResponse("Balance", acc.getAccountType(), acc.getAccountNo(), acc.getBalance());
-								slideArrayList.add(response);
+								final AISlideArrayResponse slideResponse = setArrayResponse("Balance", acc.getAccountType(), acc.getAccountNo(), formatter.format(Double.valueOf(acc.getBalance())).replace("Rs.", "\u20B9 "));
+								slideArrayList.add(slideResponse);
 							});
 							speech = "Please find the balance of all accounts";
 							custDetails.setStrSlideArray(slideArrayList);
 						}
-					} else {
-						speech = "Invalid account type";
+					} else if (paramRequest.getTranType().equalsIgnoreCase("jr004")) {
+						final List<TransactionDetails> tranDetails = processQuery.getTxnDetails();
+						final List<AISlideArrayResponse> slideArrayList = new ArrayList<AISlideArrayResponse>();
+						tranDetails.forEach(acc -> {
+							final AISlideArrayResponse slideResponse = setArrayResponse(acc.getTxnId(), acc.getDate(),  formatter.format(Double.valueOf(acc.getAmount())).replace("Rs.", "\u20B9 "), acc.getRemarks());
+							slideArrayList.add(slideResponse);
+						});
+						speech = "Please find the statement..";
+						custDetails.setStrSlideArray(slideArrayList);
 					}
-			   }
+				} else {
+					speech = "Invalid account Type";
+				}
 			}
+		}
+		response = setResponse(speech, custDetails);
+		return response;
+	}
+	
+	
+	private AIResponse getAtmDetails(AIRequest request) {
+		String speech = "";
+		CustomerDetails custDetails = new CustomerDetails();
+		AIParamRequest paramRequest = request.getResultRequest().getParameters();
+		custDetails.setParamRequest(paramRequest);
+		custDetails.setResolvedQuery(request.getResultRequest().getReqQuery());
+		
+		if ("Y".equalsIgnoreCase(jarvisUtils.validateNullData(paramRequest.getNearIdentifier()))) {
+			custDetails.setLocationFlag("Y");
+			speech = "Request you switch on locator to show nearest details";
+		} else {
+			List<LocatorDetails> atmAddrList = processQuery.getAtmAddress(paramRequest.getAtmBrchCity());
+			custDetails.setStrMapArray(atmAddrList);
+			speech = "Please find the atm details as requested";
 		}
 		AIResponse response = setResponse(speech, custDetails);
 		return response;
@@ -178,5 +260,6 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 		response.setDataFour(dataFour);
 		return response;
 	}
+
 
 }

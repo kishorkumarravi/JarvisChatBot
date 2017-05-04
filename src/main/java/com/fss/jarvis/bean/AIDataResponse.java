@@ -17,6 +17,8 @@ public class AIDataResponse {
 	
 	@XmlElement(name = "jarvis")
 	public CustomerDetails customerDetails;
+	
+	
 
 
 	public CustomerDetails getCustomerDetails() {

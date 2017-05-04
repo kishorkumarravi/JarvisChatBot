@@ -8,6 +8,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fss.jarvis.entity.LocatorDetails;
+
 /**
  * @author mohammeda
  *
@@ -44,6 +46,12 @@ public class CustomerDetails {
 	
 	@XmlElement(name = "parameters")
 	public AIParamRequest paramRequest;
+	
+	@XmlElement(name = "isLoc")
+	public String  locationFlag;
+	
+	@XmlElement(name = "isMapArray")
+	public List<LocatorDetails> strMapArray;
 	
 	public String speech;
 
@@ -133,6 +141,22 @@ public class CustomerDetails {
 
 	public void setSpeech(String speech) {
 		this.speech = speech;
+	}
+
+	public String getLocationFlag() {
+		return locationFlag;
+	}
+
+	public void setLocationFlag(String locationFlag) {
+		this.locationFlag = locationFlag;
+	}
+
+	public List<LocatorDetails> getStrMapArray() {
+		return strMapArray;
+	}
+
+	public void setStrMapArray(List<LocatorDetails> strMapArray) {
+		this.strMapArray = strMapArray;
 	}
 	
 	

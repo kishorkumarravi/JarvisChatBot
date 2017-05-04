@@ -18,6 +18,9 @@ public class AIResultRequest {
 	
 	@XmlElement(name = "resolvedQuery")
 	public String reqQuery;
+	
+	@XmlElement(name = "action")
+	public String reqAction;
 
 	public AIParamRequest getParameters() {
 		return parameters;
@@ -34,6 +37,15 @@ public class AIResultRequest {
 	public void setReqQuery(String reqQuery) {
 		this.reqQuery = reqQuery;
 	}
+
+	public String getReqAction() {
+		return reqAction;
+	}
+
+	public void setReqAction(String reqAction) {
+		this.reqAction = reqAction;
+	}
+	
 	
 	
 }
