@@ -3,15 +3,25 @@
  */
 package com.fss.jarvis.dao.impl;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -19,8 +29,10 @@ import org.springframework.stereotype.Repository;
 
 import com.fss.jarvis.dao.ProcessQuery;
 import com.fss.jarvis.entity.AccountInfo;
+import com.fss.jarvis.entity.ChatTranDetails;
 import com.fss.jarvis.entity.LocatorDetails;
 import com.fss.jarvis.entity.Registration;
+import com.fss.jarvis.entity.SearchedResult;
 import com.fss.jarvis.entity.SequenceId;
 import com.fss.jarvis.entity.TransactionConfiguration;
 import com.fss.jarvis.entity.TransactionDetails;
@@ -141,4 +153,27 @@ public class ProcessQueryImpl<T> implements ProcessQuery<T>{
 		 */
 		return atmList;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.fss.jarvis.dao.ProcessQuery#getSearchedQuery(java.lang.String)
+	 */
+	@Override
+	public List<SearchedResult> getSearchedQuery(String mobileNo) {
+		Aggregation aggregation = null;
+		if (mobileNo != null && !"".equals(mobileNo)) {
+			aggregation = newAggregation(match(Criteria.where("mobileNo").is(mobileNo)),
+					group("tType").count().as("total"), project("total").and("tType").previousOperation(),
+					sort(Sort.Direction.DESC, "total"), limit(3));
+		} else {
+			aggregation = newAggregation(group("tType").count().as("total"),
+					project("total").and("tType").previousOperation(), sort(Sort.Direction.DESC, "total"), limit(3));
+		}
+		AggregationResults<SearchedResult> groupResults = mongoTemplate.aggregate(aggregation, ChatTranDetails.class,
+				SearchedResult.class);
+		List<SearchedResult> searchedReport = groupResults.getMappedResults();
+		LOGGER.info("searched result {}", searchedReport);
+		return searchedReport;
+	}
+	
+	
 }

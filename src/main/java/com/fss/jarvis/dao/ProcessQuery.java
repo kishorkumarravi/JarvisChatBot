@@ -8,6 +8,7 @@ import java.util.List;
 import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.LocatorDetails;
 import com.fss.jarvis.entity.Registration;
+import com.fss.jarvis.entity.SearchedResult;
 import com.fss.jarvis.entity.TransactionConfiguration;
 import com.fss.jarvis.entity.TransactionDetails;
 
@@ -33,5 +34,7 @@ public interface ProcessQuery<T> {
 	public List<TransactionDetails> getTxnDetails();
 	
 	public List<LocatorDetails> getAtmAddress(String city);
+	
+	public List<SearchedResult> getSearchedQuery(String mobileNo);
  	
 }

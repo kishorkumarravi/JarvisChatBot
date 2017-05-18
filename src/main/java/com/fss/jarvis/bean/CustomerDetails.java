@@ -53,6 +53,9 @@ public class CustomerDetails {
 	@XmlElement(name = "isMapArray")
 	public List<LocatorDetails> strMapArray;
 	
+	@XmlElement(name = "isQuesArray")
+	public List<String> strQuesArray;
+	
 	public String speech;
 
 	public String getMobileNo() {
@@ -158,6 +161,15 @@ public class CustomerDetails {
 	public void setStrMapArray(List<LocatorDetails> strMapArray) {
 		this.strMapArray = strMapArray;
 	}
+
+	public List<String> getStrQuesArray() {
+		return strQuesArray;
+	}
+
+	public void setStrQuesArray(List<String> strQuesArray) {
+		this.strQuesArray = strQuesArray;
+	}
 	
+
 	
 }

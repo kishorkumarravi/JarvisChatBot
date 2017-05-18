@@ -2,6 +2,8 @@ package com.fss.jarvis.utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class JarvisConstants {
 
@@ -24,6 +26,25 @@ public final class JarvisConstants {
 
 	public final static String MINISTATEMENTTYPE = "jr004";
 
-	public final static String ATMBRANCHTTYPE = "jr005";
-
+	public final static String ATMBRANCHTTYPE = "jr005"; 
+	
+	public final static String SEARCHEDRESULTTYPE = "jr006";
+	
+	public final static String BALANCEQUES = "show me my balance in savings account?";
+	
+	public final static String ATMQUES = "show me nearest atm?";
+	
+	public final static String MINISTATQUES = "show me mini statement of savings account?";
+	
+	public final static Map<String, String> searchMap = new ConcurrentHashMap<String, String> ();
+	static  {
+		searchMap.put(BALANCEENQUIRYTYPE, BALANCEQUES);
+		searchMap.put(MINISTATEMENTTYPE, MINISTATQUES);
+		searchMap.put(ATMBRANCHTTYPE, ATMQUES);
+	}
+	
+	public final static String DEFAULTFALLBACK = "default_fallback";
+	
+	public final static String DEFAULTQUES = "Apply for Loan in 10 seconds?";
+	
 }

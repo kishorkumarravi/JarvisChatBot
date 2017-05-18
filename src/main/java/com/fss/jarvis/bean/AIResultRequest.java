@@ -21,6 +21,9 @@ public class AIResultRequest {
 	
 	@XmlElement(name = "action")
 	public String reqAction;
+	
+	@XmlElement(name = "fulfillment")
+	public AIFulfillmentRequest fulFillmentRequest;
 
 	public AIParamRequest getParameters() {
 		return parameters;
@@ -45,7 +48,13 @@ public class AIResultRequest {
 	public void setReqAction(String reqAction) {
 		this.reqAction = reqAction;
 	}
-	
-	
+
+	public AIFulfillmentRequest getFulFillmentRequest() {
+		return fulFillmentRequest;
+	}
+
+	public void setFulFillmentRequest(AIFulfillmentRequest fulFillmentRequest) {
+		this.fulFillmentRequest = fulFillmentRequest;
+	}
 	
 }

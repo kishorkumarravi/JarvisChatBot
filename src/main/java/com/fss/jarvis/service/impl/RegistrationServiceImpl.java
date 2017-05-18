@@ -5,7 +5,6 @@ package com.fss.jarvis.service.impl;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,6 +25,7 @@ import com.fss.jarvis.entity.AccountInfo;
 import com.fss.jarvis.entity.ChatTranDetails;
 import com.fss.jarvis.entity.LocatorDetails;
 import com.fss.jarvis.entity.Registration;
+import com.fss.jarvis.entity.SearchedResult;
 import com.fss.jarvis.entity.TransactionConfiguration;
 import com.fss.jarvis.entity.TransactionDetails;
 import com.fss.jarvis.service.RegistrationService;
@@ -51,12 +51,18 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 	
 	@Override
 	public AIResponse process(AIRequest request) {
-		ChatTranDetails chatTranDtls = new ChatTranDetails();
-		chatTranDtls.setMobileNo(jarvisUtils.validateNullData(request.getResultRequest().getParameters().getMobileNo()));
-		chatTranDtls.settType(jarvisUtils.validateNullData(request.getResultRequest().getParameters().getTranType()));
-		chatTranDtls.setQuery(jarvisUtils.validateNullData(request.getResultRequest().getReqQuery()));
-		chatTranDtls.setAiAction(jarvisUtils.validateNullData(request.getResultRequest().getReqAction()));
-		processQuery.saveObject((T) chatTranDtls);
+		if (!jarvisUtils.validateNullData(request.getResultRequest().getParameters().getTranType()).equals("-")) {
+			if (!request.getResultRequest().getParameters().getTranType().equals(JarvisConstants.SEARCHEDRESULTTYPE)) {
+				ChatTranDetails chatTranDtls = new ChatTranDetails();
+				chatTranDtls.setMobileNo(
+						jarvisUtils.validateNullData(request.getResultRequest().getParameters().getMobileNo()));
+				chatTranDtls.settType(
+						jarvisUtils.validateNullData(request.getResultRequest().getParameters().getTranType()));
+				chatTranDtls.setQuery(jarvisUtils.validateNullData(request.getResultRequest().getReqQuery()));
+				chatTranDtls.setAiAction(jarvisUtils.validateNullData(request.getResultRequest().getReqAction()));
+				processQuery.saveObject((T) chatTranDtls);
+			}
+		}
 		AIResponse response = getTransactionIdentifier(request);
 		return response;
 	}
@@ -120,7 +126,7 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 				custDetails.setRegFlag(isRegFlag);
 			}
 		} 
-		AIResponse response = setResponse(speech, custDetails);
+		AIResponse response = setResponse(speech, custDetails, request, "N");
 		return response;
 	}
 	
@@ -128,29 +134,37 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 	public AIResponse getTransactionIdentifier(AIRequest request) {
 		AIResponse response = null;
 		String tType = request.getResultRequest().getParameters().getTranType();
-		switch (tType) {
-		case JarvisConstants.REGISTRATIONTYPE :
-			response = insertUserDetails(request);
-			break;
-		case JarvisConstants.BALANCEENQUIRYTYPE :
-			response = getBalanceEnquiry(request);
-			break;
-		case JarvisConstants.MINISTATEMENTTYPE :
-			response = getBalanceEnquiry(request);
-			break;
-		case JarvisConstants.ATMBRANCHTTYPE :
-			response = getAtmDetails(request);
-			break;	
-		default :
-			LOGGER.info("Invalid Transaction type");
-			response = new AIResponse();
-			response.setSpeech("Invalid Request");
+		if (tType == null) {
+			response = getSearchedResult(request);
+		} else {
+			switch (tType) {
+			case JarvisConstants.REGISTRATIONTYPE:
+				response = insertUserDetails(request);
+				break;
+			case JarvisConstants.BALANCEENQUIRYTYPE:
+				response = getBalanceEnquiry(request);
+				break;
+			case JarvisConstants.MINISTATEMENTTYPE:
+				response = getBalanceEnquiry(request);
+				break;
+			case JarvisConstants.ATMBRANCHTTYPE:
+				response = getAtmDetails(request);
+				break;
+			case JarvisConstants.SEARCHEDRESULTTYPE:
+				response = getSearchedResult(request);
+				break;
+			default:
+				LOGGER.info("Invalid Transaction type");
+				response = new AIResponse();
+				response.setSpeech("Invalid Request");
+			}
 		}
 		return response;
 	}
 	
 	private AIResponse getBalanceEnquiry(AIRequest request) {
 		String speech = "";
+		String dynamicQuery = "N";
 		AIResponse response = new AIResponse();
 		CustomerDetails custDetails = new CustomerDetails();
 		AIParamRequest paramRequest = request.getResultRequest().getParameters();
@@ -177,6 +191,7 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 					}
 					NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
 					if (paramRequest.getTranType().equalsIgnoreCase("jr003")) {
+						dynamicQuery = "Y";
 						List<AccountInfo> accInfoList = processQuery.getBalance(paramRequest.getMobileNo(), paramRequest.getAccountType());
 						if (accInfoList.size() == 1) {
 							AccountInfo accInfo = accInfoList.get(0);
@@ -197,6 +212,7 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 							custDetails.setStrSlideArray(slideArrayList);
 						}
 					} else if (paramRequest.getTranType().equalsIgnoreCase("jr004")) {
+						dynamicQuery = "Y";
 						final List<TransactionDetails> tranDetails = processQuery.getTxnDetails();
 						final List<AISlideArrayResponse> slideArrayList = new ArrayList<AISlideArrayResponse>();
 						tranDetails.forEach(acc -> {
@@ -211,7 +227,7 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 				}
 			}
 		}
-		response = setResponse(speech, custDetails);
+		response = setResponse(speech, custDetails, request, dynamicQuery);
 		return response;
 	}
 	
@@ -223,7 +239,7 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 		custDetails.setParamRequest(paramRequest);
 		custDetails.setResolvedQuery(request.getResultRequest().getReqQuery());
 		
-		if ("Y".equalsIgnoreCase(jarvisUtils.validateNullData(paramRequest.getNearIdentifier()))) {
+		if ("Y".equalsIgnoreCase(jarvisUtils.validateNullData(paramRequest.getNearIdentifier())) && ("-".equalsIgnoreCase(jarvisUtils.validateNullData(paramRequest.getAtmBrchCity())))) {
 			custDetails.setLocationFlag("Y");
 			speech = "Request you switch on locator to show nearest details";
 		} else {
@@ -231,7 +247,33 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 			custDetails.setStrMapArray(atmAddrList);
 			speech = "Please find the atm details as requested";
 		}
-		AIResponse response = setResponse(speech, custDetails);
+		AIResponse response = setResponse(speech, custDetails, request, "N");
+		return response;
+	}
+	
+	private AIResponse getSearchedResult(AIRequest request) {
+		String speech = "";
+		CustomerDetails custDetails = new CustomerDetails();
+		AIParamRequest paramRequest = request.getResultRequest().getParameters();
+		custDetails.setParamRequest(paramRequest);
+		custDetails.setResolvedQuery(request.getResultRequest().getReqQuery());
+		String mobileNo = "";
+		if (paramRequest.getMobileNo() != null) {
+			mobileNo = paramRequest.getMobileNo();
+		}
+			List<SearchedResult> quesList = processQuery.getSearchedQuery(mobileNo);
+			List<String> strArray = new ArrayList<String> ();
+			quesList.forEach(str-> {
+				LOGGER.info("{} {}", str.getTotal(), str.gettType());
+				String ques = JarvisConstants.searchMap.get(str.gettType());
+				if (jarvisUtils.validateNullData(ques).equalsIgnoreCase("-")) {
+					ques = JarvisConstants.DEFAULTQUES;
+				} 
+				strArray.add(ques);
+			});
+			custDetails.setStrQuesArray(strArray);
+			speech = "Hey buddy, what would you like to do?";
+		AIResponse response = setResponse(speech, custDetails, request, "N");
 		return response;
 	}
 	
@@ -241,12 +283,16 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 		return registration;
 	}
 		
-	public AIResponse setResponse (String msg, CustomerDetails customerDetails) {
+	public AIResponse setResponse (String msg, CustomerDetails customerDetails, AIRequest request, String dynamicQuery) {
 		AIResponse response = new AIResponse();
 		AIDataResponse dataResp = new AIDataResponse();
 		LOGGER.info("Speech {}", msg);
+		if (!jarvisUtils.validateNullData(request.getResultRequest().getFulFillmentRequest().getSpeech()).equalsIgnoreCase("-") && !"Y".equals(dynamicQuery)) {
+			response.setSpeech(request.getResultRequest().getFulFillmentRequest().getSpeech());
+		} else {
+			response.setSpeech(msg);
+		}
 		dataResp.setCustomerDetails(customerDetails);
-		response.setSpeech(msg);
 		response.setDisplayText(msg);
 		response.setAiDataRsp(dataResp);
 		return response;		
@@ -260,6 +306,5 @@ public class RegistrationServiceImpl<T> implements RegistrationService {
 		response.setDataFour(dataFour);
 		return response;
 	}
-
 
 }
